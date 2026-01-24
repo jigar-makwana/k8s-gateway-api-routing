@@ -40,6 +40,29 @@ It’s great for repeatable demos and testing without a cloud bill.
 
 ---
 
+## Kind baseline config (v2)
+
+To keep local clusters consistent across machines, this repo uses a kind config file:
+
+- File: `docs/cluster/kind-config.yaml`
+
+What it does (high level):
+- Adds host port mappings for future ingress/gateway work:
+  - host `8080` → cluster `80`
+  - host `8443` → cluster `443`
+- Labels the control-plane node `ingress-ready=true` (useful for ingress/gateway controllers later)
+
+How it’s used:
+- The `cluster_create` scripts will use `docs/cluster/kind-config.yaml` automatically if the file exists.
+- You can also create the cluster manually with:
+  - Windows: `kind create cluster --name gateway-demo --config docs/cluster/kind-config.yaml`
+  - macOS/Linux: `kind create cluster --name gateway-demo --config docs/cluster/kind-config.yaml`
+
+Note: v1 still uses port-forward to reach nginx. The port mappings are groundwork for later milestones.
+
+---
+
+
 ## Install
 
 ### Windows
@@ -124,7 +147,7 @@ curl -I http://localhost:8080
 Cleanup:
 
 ```powershell
-.\scripts	eardown_smoke_test.ps1
+.\scripts\teardown_smoke_test.ps1
 .\scripts\cluster_delete.ps1 -ClusterName gateway-demo
 ```
 
