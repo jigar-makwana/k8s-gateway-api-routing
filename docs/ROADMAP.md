@@ -4,34 +4,34 @@
 
 ## v1 — NGINX smoke test (proof-of-life)
 
-- [ ] Create a local cluster (default: kind)
-- [ ] Deploy nginx (Deployment + Service)
-- [ ] Confirm reachable (port-forward)
-- [ ] Add quick commands:
-  - [ ] Bash scripts (`scripts/*.sh`)
-  - [ ] PowerShell scripts (`scripts/*.ps1`)
-  - [ ] Makefile dispatch (optional)
-- [ ] Document prerequisites + “run v1 locally” in `docs/cluster/README.md`
+- [x] Create a local cluster (default: kind)
+- [x] Deploy nginx (Deployment + Service)
+- [x] Confirm reachable (port-forward)
+- [x] Add quick commands:
+  - [x] Bash scripts (`scripts/*.sh`)
+  - [x] PowerShell scripts (`scripts/*.ps1`)
+  - [x] Makefile dispatch (optional)
+- [x] Document prerequisites + “run v1 locally” in `docs/cluster/README.md`
 
 Deliverable:
-- [ ] Works on Windows (PowerShell)
-- [ ] Works on macOS/Linux (bash)
-- [ ] `curl -I http://localhost:8080` returns nginx headers
-- [ ] `docs/cluster/README.md` includes prereqs + run steps
+- [x] Works on Windows (PowerShell)
+- [x] Works on macOS/Linux (bash)
+- [x] `curl -I http://localhost:8080` returns nginx headers
+- [x] `docs/cluster/README.md` includes prereqs + run steps
 
 ---
 
 ## v2 — Kubernetes cluster (clean baseline)
 
-- [ ] Define cluster choice + reasoning (kind/minikube/k3d)
-- [ ] Add namespaces + base kustomize layout
-- [ ] Add status + teardown scripts (both shells)
-- [ ] Document baseline cluster usage in `docs/cluster/README.md`
+- [x] Define cluster choice + reasoning (kind/minikube/k3d)
+- [x] Add namespaces + base kustomize layout
+- [x] Add status + teardown scripts (both shells)
+- [x] Document baseline cluster usage in `docs/cluster/README.md`
 
 Deliverable:
-- [ ] New user can create + delete the cluster from docs
-- [ ] `kubectl apply -k k8s/base` succeeds
-- [ ] Scripts verified on Windows + macOS/Linux
+- [x] New user can create + delete the cluster from docs
+- [x] `kubectl apply -k k8s/base` succeeds
+- [x] Scripts verified on Windows + macOS/Linux
 
 ---
 
