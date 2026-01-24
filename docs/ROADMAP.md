@@ -4,20 +4,20 @@
 
 ## v1 — NGINX smoke test (proof-of-life)
 
-- [ ] Create a local cluster (default: kind)
-- [ ] Deploy nginx (Deployment + Service)
-- [ ] Confirm reachable (port-forward)
-- [ ] Add quick commands:
-  - [ ] Bash scripts (`scripts/*.sh`)
-  - [ ] PowerShell scripts (`scripts/*.ps1`)
-  - [ ] Makefile dispatch (optional)
-- [ ] Document prerequisites + “run v1 locally” in `docs/cluster/README.md`
+- [x] Create a local cluster (default: kind)
+- [x] Deploy nginx (Deployment + Service)
+- [x] Confirm reachable (port-forward)
+- [x] Add quick commands:
+  - [x] Bash scripts (`scripts/*.sh`)
+  - [x] PowerShell scripts (`scripts/*.ps1`)
+  - [x] Makefile dispatch (optional)
+- [x] Document prerequisites + “run v1 locally” in `docs/cluster/README.md`
 
 Deliverable:
-- [ ] Works on Windows (PowerShell)
-- [ ] Works on macOS/Linux (bash)
-- [ ] `curl -I http://localhost:8080` returns nginx headers
-- [ ] `docs/cluster/README.md` includes prereqs + run steps
+- [x] Works on Windows (PowerShell)
+- [x] Works on macOS/Linux (bash)
+- [x] `curl -I http://localhost:8080` returns nginx headers
+- [x] `docs/cluster/README.md` includes prereqs + run steps
 
 ---
 
