@@ -4,9 +4,9 @@
 
 ## Roadmap (v1–v25)
 
-- [ ] **v1 — NGINX smoke test (proof-of-life)**
-- [ ] **v2 — Kubernetes cluster (clean baseline)**
-- [ ] **v3 — App deployed**
+- [x] **v1 — NGINX smoke test (proof-of-life)**
+- [x] **v2 — Kubernetes cluster (clean baseline)**
+- [x] **v3 — App deployed**
 - [ ] **v4 — Legacy routing (baseline)**
 - [ ] **v5 — Log shipper + HEC (sidecar)**
 - [ ] **v6 — Log shipper as DaemonSet (comparison)**
@@ -34,6 +34,8 @@
 
 - Roadmap checklist: [docs/ROADMAP.md](./docs/ROADMAP.md)
 - Cluster setup + prerequisites: [docs/cluster/README.md](./docs/cluster/README.md)
+- v3 app (echo-api): [apps/echo-api/README.md](./apps/echo-api/README.md)
+- v3 proof screenshots: `docs/images/v3/`
 - Routing notes: [docs/routing/README.md](./docs/routing/README.md)
 - Logging notes: [docs/logging/README.md](./docs/logging/README.md)
 - Architecture + tradeoffs: [docs/architecture/README.md](./docs/architecture/README.md)
