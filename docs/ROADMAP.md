@@ -37,16 +37,16 @@ Deliverable:
 
 ## v3 — App deployed
 
-- [ ] Add app scaffold + Dockerfile
-- [ ] Add health endpoint(s)
-- [ ] Add k8s manifests for app (Deployment/Service)
-- [ ] Deploy app to cluster
-- [ ] Document app in `apps/<app>/README.md`
+- [x] Add app scaffold + Dockerfile
+- [x] Add health endpoint(s)
+- [x] Add k8s manifests for app (Deployment/Service)
+- [x] Deploy app to cluster
+- [x] Document app in `apps/<app>/README.md`
 
 Deliverable:
-- [ ] App responds in-cluster (port-forward is fine)
-- [ ] Deployment rolls out cleanly
-- [ ] App docs exist and match commands
+- [x] App responds in-cluster (port-forward is fine)
+- [x] Deployment rolls out cleanly
+- [x] App docs exist and match commands
 
 ---
 
