@@ -62,6 +62,20 @@ Note: v1 still uses port-forward to reach nginx. The port mappings are groundwor
 
 ---
 
+## Why kind (cluster choice)
+
+This repo uses **kind** as the default local cluster because it is:
+- **Fast + repeatable**: clusters start quickly and are easy to recreate.
+- **CI-friendly**: the same approach works well in GitHub Actions later.
+- **Low friction**: runs on top of Docker, so setup is straightforward.
+- **Disposable**: teardown is clean, which keeps demos reproducible.
+
+### Alternatives (when you might choose them)
+- **minikube**: great for add-ons and VM-based setups, but typically heavier than kind.
+- **k3d**: very fast (k3s-in-docker), but kind stays closer to “upstream Kubernetes” behavior.
+
+For this project, kind gives the best balance of portability, speed, and Kubernetes compatibility.
+
 
 ## Install
 
