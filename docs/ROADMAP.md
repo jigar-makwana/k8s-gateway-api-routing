@@ -23,15 +23,15 @@ Deliverable:
 
 ## v2 — Kubernetes cluster (clean baseline)
 
-- [ ] Define cluster choice + reasoning (kind/minikube/k3d)
-- [ ] Add namespaces + base kustomize layout
-- [ ] Add status + teardown scripts (both shells)
-- [ ] Document baseline cluster usage in `docs/cluster/README.md`
+- [x] Define cluster choice + reasoning (kind/minikube/k3d)
+- [x] Add namespaces + base kustomize layout
+- [x] Add status + teardown scripts (both shells)
+- [x] Document baseline cluster usage in `docs/cluster/README.md`
 
 Deliverable:
-- [ ] New user can create + delete the cluster from docs
-- [ ] `kubectl apply -k k8s/base` succeeds
-- [ ] Scripts verified on Windows + macOS/Linux
+- [x] New user can create + delete the cluster from docs
+- [x] `kubectl apply -k k8s/base` succeeds
+- [x] Scripts verified on Windows + macOS/Linux
 
 ---
 
