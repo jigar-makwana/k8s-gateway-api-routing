@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-smoke
+  namespace: gateway-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-smoke
+  template:
+    metadata:
+      labels:
+        app: nginx-smoke
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:stable
+          ports:
+            - containerPort: 80
