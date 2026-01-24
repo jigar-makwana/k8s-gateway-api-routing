@@ -1,6 +1,9 @@
 CLUSTER_NAME ?= gateway-demo
 NS ?= gateway-demo
 PWSH ?= powershell
+ECHO_IMAGE ?= echo-api:0.1.0
+ECHO_NS ?= gateway-demo
+ECHO_PORT ?= 8081
 
 # Detect Windows vs non-Windows
 ifeq ($(OS),Windows_NT)
@@ -12,6 +15,7 @@ else
 endif
 
 .PHONY: help cluster-up cluster-down cluster-status v1-up v1-down v1-port v1-test
+.PHONY: v3-build v3-load v3-up v3-down v3-port v3-test
 
 help:
 	@echo "Targets:"
@@ -56,4 +60,43 @@ ifeq ($(OS),Windows_NT)
 	$(PWSH) -NoProfile -Command "try { (Invoke-WebRequest -UseBasicParsing -Method Head http://localhost:8080).StatusCode } catch { $_.Exception.Message; exit 1 }"
 else
 	curl -I http://localhost:8080
+endif
+
+
+v3-build:
+ifeq ($(OS),Windows_NT)
+	$(RUN) scripts/build_echo_api.$(EXT) -Image "$(ECHO_IMAGE)"
+else
+	IMAGE="$(ECHO_IMAGE)" $(RUN) scripts/build_echo_api.$(EXT)
+endif
+
+v3-load:
+ifeq ($(OS),Windows_NT)
+	$(RUN) scripts/load_echo_api.$(EXT) -ClusterName "$(CLUSTER_NAME)" -Image "$(ECHO_IMAGE)"
+else
+	IMAGE="$(ECHO_IMAGE)" $(RUN) scripts/load_echo_api.$(EXT) "$(CLUSTER_NAME)"
+endif
+
+v3-up: v3-build v3-load
+ifeq ($(OS),Windows_NT)
+	$(RUN) scripts/deploy_echo_api.$(EXT) -ClusterName "$(CLUSTER_NAME)" -Namespace "$(ECHO_NS)"
+else
+	NS="$(ECHO_NS)" $(RUN) scripts/deploy_echo_api.$(EXT) "$(CLUSTER_NAME)"
+endif
+
+v3-down:
+ifeq ($(OS),Windows_NT)
+	$(RUN) scripts/teardown_echo_api.$(EXT) -Namespace "$(ECHO_NS)"
+else
+	NS="$(ECHO_NS)" $(RUN) scripts/teardown_echo_api.$(EXT)
+endif
+
+v3-port:
+	kubectl -n $(ECHO_NS) port-forward svc/echo-api $(ECHO_PORT):80
+
+v3-test:
+ifeq ($(OS),Windows_NT)
+	$(PWSH) -NoProfile -Command "try { (Invoke-WebRequest -UseBasicParsing http://localhost:$(ECHO_PORT)/).StatusCode } catch { $_.Exception.Message; exit 1 }"
+else
+	curl -sS http://localhost:$(ECHO_PORT)/
 endif
