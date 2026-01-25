@@ -16,6 +16,8 @@ endif
 
 .PHONY: help cluster-up cluster-down cluster-status v1-up v1-down v1-port v1-test
 .PHONY: v3-build v3-load v3-up v3-down v3-port v3-test
+.PHONY: v4-ingress-install v4-ingress-uninstall v4-up v4-down v4-test
+
 
 help:
 	@echo "Targets:"
@@ -100,3 +102,20 @@ ifeq ($(OS),Windows_NT)
 else
 	curl -sS http://localhost:$(ECHO_PORT)/
 endif
+
+
+
+v4-ingress-install:
+	$(RUN) scripts/ingress_nginx_install.$(EXT) "$(CLUSTER_NAME)"
+
+v4-ingress-uninstall:
+	$(RUN) scripts/ingress_nginx_uninstall.$(EXT)
+
+v4-up: v4-ingress-install
+	$(RUN) scripts/deploy_legacy_routing.$(EXT) "$(CLUSTER_NAME)"
+
+v4-down:
+	$(RUN) scripts/teardown_legacy_routing.$(EXT)
+
+v4-test:
+	$(RUN) scripts/test_legacy_routing.$(EXT)

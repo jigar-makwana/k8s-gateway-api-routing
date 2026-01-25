@@ -52,16 +52,16 @@ Deliverable:
 
 ## v4 — Legacy routing (baseline)
 
-- [ ] Define “legacy routing” approach for this repo
-- [ ] Implement legacy routing manifests
-- [ ] Validate routing behavior + failure modes
-- [ ] Document in `docs/routing/README.md`
-- [ ] Add legacy routing diagram
+- [x] Define “legacy routing” approach for this repo
+- [x] Implement legacy routing manifests
+- [x] Validate routing behavior + failure modes
+- [x] Document in `docs/routing/README.md`
+- [x] Add legacy routing diagram
 
 Deliverable:
-- [ ] Legacy route works end-to-end
-- [ ] Diagram + explanation exist
-- [ ] Failure modes documented
+- [x] Legacy route works end-to-end
+- [x] Diagram + explanation exist
+- [x] Failure modes documented
 
 ---
 
