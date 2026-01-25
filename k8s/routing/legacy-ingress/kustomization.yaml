@@ -1,0 +1,3 @@
+resources:
+  - ingress-echo-api.yaml
+  - ingress-nginx-smoke.yaml
