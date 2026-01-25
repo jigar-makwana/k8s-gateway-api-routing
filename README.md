@@ -1,4 +1,7 @@
 # k8s-gateway-api-routing
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-Gateway--API-326ce5)
+
 
 **Purpose:** A portfolio-grade Kubernetes project showcasing end-to-end delivery: cluster setup, app deployment, routing evolution, and logging architectures—documented for repeatability and review.
 
@@ -7,7 +10,7 @@
 - [x] **v1 — NGINX smoke test (proof-of-life)**
 - [x] **v2 — Kubernetes cluster (clean baseline)**
 - [x] **v3 — App deployed**
-- [ ] **v4 — Legacy routing (baseline)**
+- [x] **v4 — Legacy routing (baseline)**
 - [ ] **v5 — Log shipper + HEC (sidecar)**
 - [ ] **v6 — Log shipper as DaemonSet (comparison)**
 - [ ] **v7 — Routing upgrade (Gateway API)**
