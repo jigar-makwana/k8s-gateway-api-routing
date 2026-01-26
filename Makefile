@@ -17,6 +17,7 @@ endif
 .PHONY: help cluster-up cluster-down cluster-status v1-up v1-down v1-port v1-test
 .PHONY: v3-build v3-load v3-up v3-down v3-port v3-test
 .PHONY: v4-ingress-install v4-ingress-uninstall v4-up v4-down v4-test
+.PHONY: v5-up v5-down v5-test v5-sink-up v5-sink-down v5-sidecar-up v5-sidecar-down v5-reset-echo
 
 
 help:
@@ -28,6 +29,17 @@ help:
 	@echo "  v1-down           Remove nginx smoke test + base resources"
 	@echo "  v1-port           Port-forward nginx service to http://localhost:8080"
 	@echo "  v1-test           Send a HEAD request to http://localhost:8080 (run after v1-port)"
+	@echo ""
+	@echo "  v3-up             Build + load + deploy echo-api"
+	@echo "  v3-down           Remove echo-api"
+	@echo "  v3-port           Port-forward echo-api to http://localhost:$(ECHO_PORT)"
+	@echo "  v3-test           GET http://localhost:$(ECHO_PORT)/ (run after v3-port)"
+	@echo "  v4-up             Install ingress-nginx + apply legacy ingress routes"
+	@echo "  v4-down           Remove legacy ingress routes"
+	@echo "  v4-test           Validate / and /nginx via scripts"
+	@echo "  v5-up             Deploy mock HEC sink + add Vector sidecar to echo-api"
+	@echo "  v5-test           Confirm logs are flowing to the HEC sink"
+	@echo "  v5-down           Remove v5 logging overlay + remove sink + reset echo-api"
 	@echo ""
 	@echo "Variables:"
 	@echo "  CLUSTER_NAME      Cluster name (default: gateway-demo)"
@@ -119,3 +131,47 @@ v4-down:
 
 v4-test:
 	$(RUN) scripts/test_legacy_routing.$(EXT)
+
+# --------------------------
+# v5 — Sidecar log shipper (Vector) + mock HEC sink
+# --------------------------
+
+v5-sink-up:
+ifeq ($(OS),Windows_NT)
+	$(RUN) scripts/deploy_hec_sink.$(EXT) -ClusterName "$(CLUSTER_NAME)"
+else
+	$(RUN) scripts/deploy_hec_sink.$(EXT) "$(CLUSTER_NAME)"
+endif
+
+v5-sink-down:
+	$(RUN) scripts/teardown_hec_sink.$(EXT)
+
+v5-sidecar-up:
+ifeq ($(OS),Windows_NT)
+	$(RUN) scripts/deploy_hec_sidecar.$(EXT) -ClusterName "$(CLUSTER_NAME)"
+else
+	$(RUN) scripts/deploy_hec_sidecar.$(EXT) "$(CLUSTER_NAME)"
+endif
+
+v5-sidecar-down:
+	$(RUN) scripts/teardown_hec_sidecar.$(EXT)
+
+# Reset echo-api back to the v3 baseline by re-applying the v3 deployment manifests.
+v5-reset-echo:
+ifeq ($(OS),Windows_NT)
+	$(RUN) scripts/deploy_echo_api.$(EXT) -ClusterName "$(CLUSTER_NAME)" -Namespace "$(ECHO_NS)"
+else
+	NS="$(ECHO_NS)" $(RUN) scripts/deploy_echo_api.$(EXT) "$(CLUSTER_NAME)"
+endif
+
+# v5 assumes v3 (echo-api) is deployed and v4 provides ingress at :8080 for the test.
+v5-up: v3-up v4-up v5-sink-up v5-sidecar-up
+
+v5-test:
+ifeq ($(OS),Windows_NT)
+	$(RUN) scripts/test_logging_sidecar.$(EXT) -BaseUrl "http://localhost:8080"
+else
+	BASE_URL="http://localhost:8080" $(RUN) scripts/test_logging_sidecar.$(EXT)
+endif
+
+v5-down: v5-sidecar-down v5-sink-down v5-reset-echo

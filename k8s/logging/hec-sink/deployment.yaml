@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hec-sink
+  namespace: gateway-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hec-sink
+  template:
+    metadata:
+      labels:
+        app: hec-sink
+    spec:
+      containers:
+        - name: hec-sink
+          image: python:3.12-slim
+          ports:
+            - containerPort: 8088
+          env:
+            - name: HEC_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hec-token
+                  key: HEC_TOKEN
+          volumeMounts:
+            - name: server
+              mountPath: /app/server.py
+              subPath: server.py
+          command: ["python", "/app/server.py"]
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8088
+            initialDelaySeconds: 2
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8088
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: server
+          configMap:
+            name: hec-sink-server
