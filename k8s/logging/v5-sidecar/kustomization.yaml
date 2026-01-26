@@ -1,0 +1,10 @@
+resources:
+  - vector-configmap.yaml
+  - ../../apps/echo-api
+
+patches:
+  - path: echo-api-patch.yaml
+    target:
+      kind: Deployment
+      name: echo-api
+      namespace: gateway-demo

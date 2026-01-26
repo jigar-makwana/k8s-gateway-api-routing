@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vector-config
+  namespace: gateway-demo
+data:
+  vector.toml: |-
+    data_dir = "/var/lib/vector"
+
+    [sources.app_log]
+    type = "file"
+    include = ["/var/log/app/app.log"]
+    read_from = "beginning"
+    ignore_older_secs = 0
+
+    [sinks.hec]
+    # NOTE: Vector renamed the old `splunk_hec` sink to `splunk_hec_logs`.
+    type = "splunk_hec_logs"
+    inputs = ["app_log"]
+    endpoint = "http://hec-sink.gateway-demo.svc.cluster.local:8088"
+    endpoint_target = "event"
+    default_token = "${HEC_TOKEN}"
+
+    [sinks.hec.encoding]
+    codec = "json"

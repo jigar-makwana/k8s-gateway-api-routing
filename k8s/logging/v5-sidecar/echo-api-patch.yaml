@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: echo-api
+  namespace: gateway-demo
+spec:
+  template:
+    spec:
+      volumes:
+        - name: app-logs
+          emptyDir: {}
+        - name: vector-config
+          configMap:
+            name: vector-config
+      containers:
+        - name: echo-api
+          volumeMounts:
+            - name: app-logs
+              mountPath: /var/log/app
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -e
+              # Ensure we actually emit request logs so the sidecar has something to ship.
+              gunicorn -b 0.0.0.0:8080 --access-logfile - --error-logfile - main:app 2>&1 | tee -a /var/log/app/app.log
+        - name: vector
+          image: timberio/vector:0.38.0-alpine
+          args: ["--config", "/etc/vector/vector.toml"]
+          env:
+            - name: HEC_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hec-token
+                  key: HEC_TOKEN
+          volumeMounts:
+            - name: app-logs
+              mountPath: /var/log/app
+            - name: vector-config
+              mountPath: /etc/vector/vector.toml
+              subPath: vector.toml
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
