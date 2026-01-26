@@ -1,4 +1,5 @@
 # k8s-gateway-api-routing
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-Gateway--API-326ce5)
 
@@ -11,7 +12,7 @@
 - [x] **v2 — Kubernetes cluster (clean baseline)**
 - [x] **v3 — App deployed**
 - [x] **v4 — Legacy routing (baseline)**
-- [ ] **v5 — Log shipper + HEC (sidecar)**
+- [x] **v5 — Log shipper + HEC (sidecar)**
 - [ ] **v6 — Log shipper as DaemonSet (comparison)**
 - [ ] **v7 — Routing upgrade (Gateway API)**
 - [ ] **v8 — RBAC least privilege**
@@ -33,27 +34,26 @@
 - [ ] **v24 — Environments (Delivery)**
 - [ ] **v25 — AWS variant (Cloud realism, optional)**
 
-## Docs (details live outside this README)
+## Docs
 
-- Roadmap checklist: [docs/ROADMAP.md](./docs/ROADMAP.md)
-- Cluster setup + prerequisites: [docs/cluster/README.md](./docs/cluster/README.md)
-- v3 app (echo-api): [apps/echo-api/README.md](./apps/echo-api/README.md)
-- v3 proof screenshots: `docs/images/v3/`
-- Routing notes: [docs/routing/README.md](./docs/routing/README.md)
-- Logging notes: [docs/logging/README.md](./docs/logging/README.md)
-- Architecture + tradeoffs: [docs/architecture/README.md](./docs/architecture/README.md)
+- Start here: `docs/START_HERE.md`
+- Roadmap checklist: `docs/ROADMAP.md`
+- Cluster setup: `docs/cluster/README.md`
+- Routing (v4): `docs/routing/README.md`
+- Logging (v5): `docs/logging/README.md`
+- Architecture + tradeoffs: `docs/architecture/README.md`, `docs/architecture/tradeoffs.md`
+- Proof screenshots: `docs/images/` (files prefixed `v1-`, `v2-`, `v3-`, ...)
 
-## Cross-platform support
+## Where do I “see” logs?
 
-- Bash scripts: `scripts/*.sh`
-- PowerShell scripts: `scripts/*.ps1`
-- `Makefile` dispatch is optional (scripts work without `make`)
+- **FreeLens** → select pod → **Logs**
+- or `kubectl logs` (example: `kubectl -n gateway-demo logs deploy/hec-sink -f --tail=100`)
 
 ## Workflow
 
 - `main` stays stable / releasable
 - `dev` is where the next milestone happens
-- Tag milestone releases on `main` (e.g., `v1.0.0`, `v2.0.0`, ...)
+- Tag milestone releases on `main` (e.g., `v4.0.0`, `v5.0.0`, ...)
 
 ## License
 See [LICENSE](./LICENSE).
