@@ -67,16 +67,16 @@ Deliverable:
 
 ## v5 — Log shipper + HEC (sidecar)
 
-- [ ] Define log format + destination + HEC input
-- [ ] Implement sidecar pattern (ConfigMap/Secret/env)
-- [ ] Validate logs flow end-to-end
-- [ ] Document in `docs/logging/README.md`
-- [ ] Add tradeoffs in `docs/architecture/tradeoffs.md`
+- [x] Define log format + destination + HEC input
+- [x] Implement sidecar pattern (ConfigMap/Secret/env)
+- [x] Validate logs flow end-to-end
+- [x] Document in `docs/logging/README.md`
+- [x] Add tradeoffs in `docs/architecture/tradeoffs.md`
 
 Deliverable:
-- [ ] Logs confirmed flowing to HEC receiver
-- [ ] Sidecar config reproducible
-- [ ] Tradeoffs written
+- [x] Logs confirmed flowing to HEC receiver
+- [x] Sidecar config reproducible
+- [x] Tradeoffs written
 
 ---
 
