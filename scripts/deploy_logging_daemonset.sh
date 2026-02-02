@@ -42,17 +42,21 @@
 #   - Bash reference: https://www.gnu.org/software/bash/manual/bash.html
 #
 # Most relevant for this script:
-#   - Sidecar pattern (Kubernetes blog): https://kubernetes.io/blog/2015/06/the-distributed-system-toolkit-patterns/
+#   - DaemonSet logging pattern (Kubernetes docs): https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/
 # ---------------------------------------------
 
 set -euo pipefail
 
-CLUSTER_NAME="${1:-gateway-demo}"
-CTX="kind-${CLUSTER_NAME}"
-kubectl config use-context "${CTX}" >/dev/null 2>&1 || true
+NAMESPACE="${1:-gateway-demo}"
 
-echo "Applying v5 sidecar logging overlay to echo-api..."
-kubectl apply -f k8s/logging/v5-sidecar/vector-configmap.yaml
-kubectl apply -k k8s/logging/v5-sidecar
+echo "Deploying v6 logging DaemonSet (Vector) to namespace '${NAMESPACE}'..."
 
-kubectl -n gateway-demo rollout status deploy/echo-api
+bash "$(dirname "$0")/deploy_hec_sink.sh" >/dev/null
+
+kubectl kustomize k8s/logging/v6-daemonset | kubectl apply -f -
+
+echo "Waiting for DaemonSet/vector rollout..."
+kubectl -n "${NAMESPACE}" rollout status ds/vector --timeout=180s
+
+echo "Vector DaemonSet status:"
+kubectl -n "${NAMESPACE}" get ds,pods -l app=vector -o wide

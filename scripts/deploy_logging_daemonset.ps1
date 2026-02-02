@@ -41,34 +41,26 @@ Tooling + platform docs:
   - Bash reference: https://www.gnu.org/software/bash/manual/bash.html
 
 Most relevant for this script:
-  - kubectl rollout status: https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#rollout
+  - DaemonSet logging pattern (Kubernetes docs): https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/
 #>
+
+param(
+  [string]$Namespace = "gateway-demo"
+)
 
 $ErrorActionPreference = "Stop"
 
-function HasKustomizeFlag {
-  try {
-    $help = & kubectl apply --help 2>$null
-    return ($help -match "kustomize") -or ($help -match "--k")
-  } catch { return $false }
-}
+Write-Host "Deploying v6 logging DaemonSet (Vector) to namespace '$Namespace'..."
 
-if (HasKustomizeFlag) {
-  & kubectl apply -k k8s/base
-  if ($LASTEXITCODE -ne 0) { throw "kubectl apply -k k8s/base failed" }
-  & kubectl apply -k k8s/smoke-test
-  if ($LASTEXITCODE -ne 0) { throw "kubectl apply -k k8s/smoke-test failed" }
-} else {
-  & kubectl apply -f k8s/base/namespace.yaml
-  if ($LASTEXITCODE -ne 0) { throw "apply namespace failed" }
-  & kubectl apply -f k8s/smoke-test/deployment.yaml
-  if ($LASTEXITCODE -ne 0) { throw "apply deployment failed" }
-  & kubectl apply -f k8s/smoke-test/service.yaml
-  if ($LASTEXITCODE -ne 0) { throw "apply service failed" }
-}
+# Ensure mock HEC sink exists (re-use v5)
+& "$PSScriptRoot\deploy_hec_sink.ps1" | Out-Null
 
-& kubectl -n gateway-demo rollout status deploy/nginx-smoke
-if ($LASTEXITCODE -ne 0) { throw "rollout status failed" }
+# Apply manifests (use kubectl kustomize to avoid kubectl -k compatibility issues)
+kubectl kustomize k8s/logging/v6-daemonset | kubectl apply -f - | Out-Host
+if ($LASTEXITCODE -ne 0) { throw "Failed to apply v6 manifests" }
 
-& kubectl -n gateway-demo get svc nginx-smoke
-Write-Host "Port-forward: kubectl -n gateway-demo port-forward svc/nginx-smoke 8080:80"
+Write-Host "Waiting for DaemonSet/vector rollout..."
+kubectl -n $Namespace rollout status ds/vector --timeout=180s | Out-Host
+
+Write-Host "Vector DaemonSet status:"
+kubectl -n $Namespace get ds,pods -l app=vector -o wide | Out-Host

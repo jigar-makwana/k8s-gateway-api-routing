@@ -42,17 +42,77 @@
 #   - Bash reference: https://www.gnu.org/software/bash/manual/bash.html
 #
 # Most relevant for this script:
-#   - Sidecar pattern (Kubernetes blog): https://kubernetes.io/blog/2015/06/the-distributed-system-toolkit-patterns/
+#   - kubectl logs: https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#logs
 # ---------------------------------------------
 
 set -euo pipefail
 
-CLUSTER_NAME="${1:-gateway-demo}"
-CTX="kind-${CLUSTER_NAME}"
-kubectl config use-context "${CTX}" >/dev/null 2>&1 || true
+BASE_URL="${BASE_URL:-http://localhost:8080}"
+NAMESPACE="${NAMESPACE:-gateway-demo}"
+TIMEOUT_SECONDS="${TIMEOUT_SECONDS:-90}"
 
-echo "Applying v5 sidecar logging overlay to echo-api..."
-kubectl apply -f k8s/logging/v5-sidecar/vector-configmap.yaml
-kubectl apply -k k8s/logging/v5-sidecar
+echo "EXPECTED:"
+echo "  - Vector DaemonSet is running."
+echo "  - Traffic to $BASE_URL/ is generated with an x-request-id."
+echo "  - The sink logs contain the request_id."
+echo ""
+echo "NOT EXPECTED:"
+echo "  - Connection refused (port-forward not running)."
+echo ""
 
-kubectl -n gateway-demo rollout status deploy/echo-api
+if ! curl -fsS -I "$BASE_URL" >/dev/null; then
+  echo "ERROR: Cannot reach $BASE_URL"
+  echo "Hint: In another terminal run: make v4-port"
+  exit 1
+fi
+
+RID="$( (command -v uuidgen >/dev/null && uuidgen | tr -d '-') || (cat /proc/sys/kernel/random/uuid | tr -d '-') )"
+echo "Generating traffic against $BASE_URL/ (x-request-id=$RID)"
+curl -fsS -H "x-request-id: $RID" "$BASE_URL/" >/dev/null
+
+deadline=$(( $(date +%s) + TIMEOUT_SECONDS ))
+found=0
+while [ "$(date +%s)" -lt "$deadline" ]; do
+  if kubectl -n "$NAMESPACE" logs deploy/hec-sink --tail=250 2>/dev/null | grep -q "$RID"; then
+    found=1
+    break
+  fi
+  sleep 2
+done
+
+if [ "$found" -ne 1 ]; then
+  echo "FAIL: request_id not found in recent hec-sink logs within ${TIMEOUT_SECONDS}s"
+  echo "Quick diagnostics:"
+  echo "  kubectl -n $NAMESPACE get ds,pods -l app=vector -o wide"
+  echo "  kubectl -n $NAMESPACE logs -l app=vector --tail=120"
+  echo "  kubectl -n $NAMESPACE logs deploy/hec-sink --tail=120"
+  exit 1
+fi
+
+echo "PASS: sink received log event for request_id=$RID"
+echo ""
+
+
+
+
+
+
+
+
+
+
+
+
+echo "NOTES / DOCS (read after passing/failing)"
+echo "Repo docs:"
+echo "  - docs/logging/README.md"
+echo "  - docs/logging/v6-daemonset.md"
+echo ""
+echo "Official docs:"
+echo "  - DaemonSet: https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/"
+echo "  - Vector Kubernetes logs: https://vector.dev/docs/reference/configuration/sources/kubernetes_logs/"
+echo "  - Splunk HEC: https://docs.splunk.com/Documentation/Splunk/latest/Data/UsetheHTTPEventCollector"
+echo "  - curl docs: https://curl.se/docs/"
+echo ""
+echo "Advantages: one agent per node, scales better."
+echo "Disadvantages: needs broader access to node logs/RBAC."
