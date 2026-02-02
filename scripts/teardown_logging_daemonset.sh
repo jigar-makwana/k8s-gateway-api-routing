@@ -40,19 +40,10 @@
 #   - PowerShell 7+ (pwsh): https://learn.microsoft.com/powershell/scripting/overview?view=powershell-7.4
 #   - Execution policy (PowerShell): https://learn.microsoft.com/powershell/module/microsoft.powershell.security/set-executionpolicy
 #   - Bash reference: https://www.gnu.org/software/bash/manual/bash.html
-#
-# Most relevant for this script:
-#   - Sidecar pattern (Kubernetes blog): https://kubernetes.io/blog/2015/06/the-distributed-system-toolkit-patterns/
 # ---------------------------------------------
 
 set -euo pipefail
 
-CLUSTER_NAME="${1:-gateway-demo}"
-CTX="kind-${CLUSTER_NAME}"
-kubectl config use-context "${CTX}" >/dev/null 2>&1 || true
-
-echo "Applying v5 sidecar logging overlay to echo-api..."
-kubectl apply -f k8s/logging/v5-sidecar/vector-configmap.yaml
-kubectl apply -k k8s/logging/v5-sidecar
-
-kubectl -n gateway-demo rollout status deploy/echo-api
+echo "Removing v6 logging DaemonSet (Vector)..."
+kubectl kustomize k8s/logging/v6-daemonset | kubectl delete -f - --ignore-not-found
+echo "Done."

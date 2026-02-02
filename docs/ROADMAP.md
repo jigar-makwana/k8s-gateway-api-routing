@@ -82,19 +82,19 @@ Deliverable:
 
 ## v6 — Log shipper as DaemonSet (comparison)
 
-- [ ] Implement DaemonSet shipper
-- [ ] Validate log flow end-to-end
-- [ ] Compare sidecar vs DaemonSet:
-  - [ ] operational overhead
-  - [ ] resource cost
-  - [ ] blast radius + failure modes
-  - [ ] scaling + maintenance
-- [ ] Add comparison table + guidance
+- [x] Implement DaemonSet shipper
+- [x] Validate log flow end-to-end
+- [x] Compare sidecar vs DaemonSet:
+  - [x] operational overhead
+  - [x] resource cost
+  - [x] blast radius + failure modes
+  - [x] scaling + maintenance
+- [x] Add comparison table + guidance
 
 Deliverable:
-- [ ] DaemonSet logging works
-- [ ] Sidecar vs DaemonSet comparison documented
-- [ ] Recommendation written (when to use what)
+- [x] DaemonSet logging works
+- [x] Sidecar vs DaemonSet comparison documented
+- [x] Recommendation written (when to use what)
 
 ---
 

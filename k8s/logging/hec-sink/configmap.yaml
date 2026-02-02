@@ -11,6 +11,8 @@ data:
 
     TOKEN = os.getenv("HEC_TOKEN", "dev-token")
 
+    HEC_HEALTH_PAYLOAD = {"text": "HEC is healthy", "code": 17}
+
     class Handler(BaseHTTPRequestHandler):
       def _send(self, code, payload):
         body = json.dumps(payload).encode("utf-8")
@@ -21,8 +23,14 @@ data:
         self.wfile.write(body)
 
       def do_GET(self):
+        # Lightweight probe endpoints for Kubernetes
         if self.path in ("/healthz", "/readyz", "/"):
           return self._send(200, {"status": "ok"})
+
+        # Splunk HEC health endpoints (Vector uses these for sink healthchecks)
+        if self.path in ("/services/collector/health", "/services/collector/health/1.0"):
+          return self._send(200, HEC_HEALTH_PAYLOAD)
+
         return self._send(404, {"error": "not found"})
 
       def do_POST(self):

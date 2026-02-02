@@ -19,20 +19,26 @@ We use:
   - `/nginx` → `nginx-smoke` service (rewrite to `/`)
 
 ### Prereqs
-You must have these running first:
+v4 depends on:
 - v1: `nginx-smoke` deployed
 - v3: `echo-api` deployed
+
+(If you run `make v4`, it brings those up automatically.)
 
 ---
 
 ## Run v4 (recommended)
 
 ### With Make
+
+Terminal A (blocking):
 ```bash
-make cluster-up
-make v1-up
-make v3-up
-make v4-up
+make v4
+make v4-port
+```
+
+Terminal B:
+```bash
 make v4-test
 ```
 
@@ -43,14 +49,18 @@ make v4-test
 .\scripts\cluster_create.ps1 -ClusterName gateway-demo
 .\scripts\deploy_smoke_test.ps1
 
-.\scripts\build_echo_api.ps1 -Image "echo-api:0.1.0"
+.\scriptsuild_echo_api.ps1 -Image "echo-api:0.1.0"
 .\scripts\load_echo_api.ps1 -ClusterName "gateway-demo" -Image "echo-api:0.1.0"
-.\scripts\deploy_echo_api.ps1 -ClusterName "gateway-demo" -Namespace "gateway-demo"
+.\scripts\deploy_echo_api.ps1 -ClusterName "gateway-demo" -Namespace gateway-demo
 
 .\scripts\ingress_nginx_install.ps1 -ClusterName gateway-demo
-.\scripts\deploy_legacy_routing.ps1 -ClusterName gateway-demo -Namespace gateway-demo
+.\scripts\deploy_legacy_routing.ps1 -ClusterName gateway-demo
 
-.\scripts\test_legacy_routing.ps1
+# Terminal A (blocking):
+kubectl -n ingress-nginx port-forward svc/ingress-nginx-controller 8080:80
+
+# Terminal B:
+.\scripts	est_legacy_routing.ps1
 ```
 
 #### macOS/Linux (bash)
@@ -65,18 +75,22 @@ bash scripts/deploy_echo_api.sh gateway-demo
 bash scripts/ingress_nginx_install.sh gateway-demo
 bash scripts/deploy_legacy_routing.sh gateway-demo
 
+# Terminal A (blocking):
+kubectl -n ingress-nginx port-forward svc/ingress-nginx-controller 8080:80
+
+# Terminal B:
 bash scripts/test_legacy_routing.sh
 ```
 
 ---
 
-## Validate (what “working” looks like)
+## Verify routing (manual)
 
-> Windows note: PowerShell `curl` is an alias. Use `curl.exe` if you want consistent curl behavior.
+With the port-forward running (`make v4-port`), hit:
 
-```powershell
-curl.exe -i http://localhost:8080/
-curl.exe -i http://localhost:8080/nginx
+```bash
+curl http://localhost:8080/
+curl http://localhost:8080/nginx
 ```
 
 Expected:
@@ -105,7 +119,7 @@ flowchart LR
 ### `404 Not Found` from nginx
 Usually means:
 - Ingress exists, but no rule matches the path, **or**
-- The `echo-api` Ingress is missing.
+- The Ingress objects weren’t applied.
 
 Debug:
 ```bash
@@ -115,7 +129,7 @@ kubectl -n gateway-demo describe ingress
 
 ### `503 Service Temporarily Unavailable`
 Usually means:
-- Ingress rule matched, but the backend has **no endpoints** (no ready pods).
+- Ingress rule matched, but the backend has **no ready endpoints** (no ready pods).
 
 Debug:
 ```bash
@@ -129,7 +143,7 @@ kubectl -n gateway-demo rollout status deploy/nginx-smoke
 Usually means:
 - controller not ready, or
 - you’re on the wrong cluster context, or
-- cluster was recreated and you’re hitting stale resources.
+- the port-forward is not running.
 
 Debug:
 ```bash
