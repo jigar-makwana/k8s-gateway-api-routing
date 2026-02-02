@@ -3,7 +3,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-Gateway--API-326ce5)
 
-
 **Purpose:** A portfolio-grade Kubernetes project showcasing end-to-end delivery: cluster setup, app deployment, routing evolution, and logging architectures—documented for repeatability and review.
 
 ## Roadmap (v1–v25)
@@ -13,7 +12,7 @@
 - [x] **v3 — App deployed**
 - [x] **v4 — Legacy routing (baseline)**
 - [x] **v5 — Log shipper + HEC (sidecar)**
-- [ ] **v6 — Log shipper as DaemonSet (comparison)**
+- [x] **v6 — Log shipper as DaemonSet (comparison)**
 - [ ] **v7 — Routing upgrade (Gateway API)**
 - [ ] **v8 — RBAC least privilege**
 - [ ] **v9 — Pod Security Standards (baseline + exceptions)**
@@ -41,13 +40,24 @@
 - Cluster setup: `docs/cluster/README.md`
 - Routing (v4): `docs/routing/README.md`
 - Logging (v5): `docs/logging/README.md`
+- Logging (v6): `docs/logging/v6-daemonset.md`
+- Troubleshooting: `docs/troubleshooting/README.md`
 - Architecture + tradeoffs: `docs/architecture/README.md`, `docs/architecture/tradeoffs.md`
 - Proof screenshots: `docs/images/` (files prefixed `v1-`, `v2-`, `v3-`, ...)
+
+## Quick mental model
+
+- **v5 (sidecar):** `echo-api` pod includes a `vector` container (sidecar). Great for app-specific pipelines.
+- **v6 (daemonset):** Vector runs as a DaemonSet and reads node/pod logs. Great for cluster-wide shipping.
+- Switching between v5 and v6 changes what’s running. If you ran v6 and then run v5 tests, re-apply the v5 overlay.
 
 ## Where do I “see” logs?
 
 - **FreeLens** → select pod → **Logs**
-- or `kubectl logs` (example: `kubectl -n gateway-demo logs deploy/hec-sink -f --tail=100`)
+- or `kubectl logs`:
+  - Sink received events: `kubectl -n gateway-demo logs deploy/hec-sink -f --tail=100`
+  - v5 sidecar logs: `kubectl -n gateway-demo logs deploy/echo-api -c vector -f --tail=100`
+  - v6 daemonset logs: `kubectl -n gateway-demo logs -l app=vector -f --tail=100`
 
 ## Workflow
 
