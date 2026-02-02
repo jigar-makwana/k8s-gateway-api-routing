@@ -45,3 +45,26 @@ This file captures the “why” behind choices, plus what we’ll compare in la
 ## Notes for reviewers
 - v5 uses a mock HEC sink for local demos (no cloud bill).
 - “Proof” is visible by reading the sink’s pod logs (and in FreeLens).
+
+
+---
+
+## v6 — DaemonSet log shipping (Vector + HEC sink)
+**Pattern**
+- One Vector agent per node (DaemonSet)
+- Reads `/var/log/pods` and enriches logs via the Kubernetes API
+- Ships selected logs to destination (HEC-style HTTP endpoint)
+
+**Pros**
+- Lower per-pod overhead (no sidecar container per workload)
+- Centralized config and rollout (update one DaemonSet)
+- Consistent collection/enrichment across workloads
+
+**Cons**
+- Larger blast radius (a bad agent config impacts many workloads)
+- Per-app customization can be harder (needs routing rules/filters)
+- Requires hostPath access to node logs (security tradeoff)
+
+**Implementation note (this repo)**
+- v6 filters to `gateway-demo` + `echo-api` container logs to avoid feedback loops
+  (shipping the sink’s own logs back into the sink).

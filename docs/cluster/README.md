@@ -14,6 +14,12 @@ kind creates a local Kubernetes cluster where the “nodes” are Docker contain
 - **kind** (local Kubernetes cluster runner)
 - **git**
 
+Tip: if you have `make`, you can sanity-check prerequisites with:
+
+```bash
+make tools-check
+```
+
 ---
 
 ## Optional tools (convenience)
@@ -204,7 +210,7 @@ PowerShell 7 (`pwsh`) is preferred. If you only have Windows PowerShell, set `PW
 ```powershell
 # PowerShell 7
 make cluster-up
-make v1-up
+make v1
 make v1-port
 ```
 
@@ -221,7 +227,7 @@ make v1-port
 
 ```bash
 make cluster-up
-make v1-up
+make v1
 make v1-port
 ```
 
