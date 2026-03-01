@@ -1,4 +1,4 @@
-# Makefile — Version ladder (v1..v6)
+# Makefile — Version ladder (v1..v7)
 #
 # Design rules:
 #  1) `make vN` / `make vN-up` spins up the cluster and *all prerequisites* required for that version.
@@ -34,6 +34,7 @@ endif
 .PHONY: v4 v4-ingress-install v4-ingress-uninstall v4-up v4-down v4-port v4-test
 .PHONY: v5 v5-sink-up v5-sink-down v5-sidecar-up v5-sidecar-down v5-up v5-down v5-test
 .PHONY: v6 echo-reset v6-daemonset-up v6-daemonset-down v6-up v6-down v6-test
+.PHONY: v7 v7-gateway-install v7-gateway-uninstall v7-up v7-down v7-port v7-test
 
 # --------------------------
 # Generic ladder shortcut
@@ -54,11 +55,13 @@ help:
 	@echo "  v4 / v4-up            ingress-nginx + legacy ingress routing (depends on v1 + v3)"
 	@echo "  v5 / v5-up            Vector sidecar shipping to mock HEC sink (depends on v4)"
 	@echo "  v6 / v6-up            Vector DaemonSet shipping to mock HEC sink (depends on v4)"
+	@echo "  v7 / v7-up            Gateway API routing (NGINX Gateway Fabric) (depends on v1 + v3)"
 	@echo ""
 	@echo "Port-forward (run in separate terminal):"
 	@echo "  v1-port               Port-forward nginx-smoke to http://localhost:8080"
 	@echo "  v3-port               Port-forward echo-api to http://localhost:$(ECHO_PORT)"
 	@echo "  v4-port               Port-forward ingress to $(BASE_URL)  (required for v4/v5/v6 tests)"
+	@echo "  v7-port               Port-forward NGINX Gateway Fabric to $(BASE_URL)  (required for v7 tests)"
 	@echo ""
 	@echo "Tests (separate, optional):"
 	@echo "  v1-test               HEAD http://localhost:8080 (after v1-port)"
@@ -66,6 +69,7 @@ help:
 	@echo "  v4-test               Validate legacy routes (/ and /nginx)"
 	@echo "  v5-test               Validate sidecar shipping (generates request_id + checks sink logs)"
 	@echo "  v6-test               Validate daemonset shipping (generates request_id + checks sink logs)"
+	@echo "  v7-test               Validate Gateway API routes (/ and /nginx)"
 	@echo ""
 	@echo "Cleanup (keeps cluster):"
 	@echo "  versions-down         Tear down all version workloads (v6..v1) but keep the cluster"
@@ -261,9 +265,36 @@ else
 endif
 
 # --------------------------
+# v7 — modern routing via Gateway API (NGINX Gateway Fabric)
+# --------------------------
+v7: v7-up
+
+v7-gateway-install: cluster-up
+	$(RUN) scripts/gateway_nginx_install.$(EXT) "$(CLUSTER_NAME)"
+
+v7-gateway-uninstall:
+	$(RUN) scripts/gateway_nginx_uninstall.$(EXT)
+
+# Port-forward NGINX Gateway Fabric service (blocking; run in its own terminal)
+v7-port:
+	kubectl -n nginx-gateway port-forward svc/nginx-gateway $(INGRESS_PORT):80
+
+# v7 requires v1 (nginx-smoke) + v3 (echo-api) backends + Gateway API controller
+v7-up: v1-up v3-up v7-gateway-install
+	$(RUN) scripts/deploy_gateway_routing.$(EXT) "$(CLUSTER_NAME)"
+
+v7-down:
+	$(RUN) scripts/teardown_gateway_routing.$(EXT)
+
+v7-test:
+	$(RUN) scripts/test_gateway_routing.$(EXT)
+
+# --------------------------
 # Cleanup — remove all version resources but keep the cluster
 # --------------------------
 versions-down:
+	-$(MAKE) v7-down
+	-$(MAKE) v7-gateway-uninstall
 	-$(MAKE) v6-down
 	-$(MAKE) v5-down
 	-$(MAKE) v5-sink-down

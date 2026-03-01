@@ -13,7 +13,7 @@
 - [x] **v4 — Legacy routing (baseline)**
 - [x] **v5 — Log shipper + HEC (sidecar)**
 - [x] **v6 — Log shipper as DaemonSet (comparison)**
-- [ ] **v7 — Routing upgrade (Gateway API)**
+- [x] **v7 — Routing upgrade (Gateway API)**
 - [ ] **v8 — RBAC least privilege**
 - [ ] **v9 — Pod Security Standards (baseline + exceptions)**
 - [ ] **v10 — NetworkPolicies (deny-by-default + allow)**
@@ -38,7 +38,7 @@
 - Start here: `docs/START_HERE.md`
 - Roadmap checklist: `docs/ROADMAP.md`
 - Cluster setup: `docs/cluster/README.md`
-- Routing (v4): `docs/routing/README.md`
+- Routing (v4 legacy + v7 Gateway API): `docs/routing/README.md`
 - Logging (v5): `docs/logging/README.md`
 - Logging (v6): `docs/logging/v6-daemonset.md`
 - Troubleshooting: `docs/troubleshooting/README.md`
@@ -47,9 +47,11 @@
 
 ## Quick mental model
 
+- **v4 (legacy routing):** `ingress-nginx` controller + Ingress resources. The "before" baseline.
+- **v7 (Gateway API):** NGINX Gateway Fabric controller + Gateway/HTTPRoute resources. The "after" upgrade—same NGINX data plane, standardized API.
 - **v5 (sidecar):** `echo-api` pod includes a `vector` container (sidecar). Great for app-specific pipelines.
 - **v6 (daemonset):** Vector runs as a DaemonSet and reads node/pod logs. Great for cluster-wide shipping.
-- Switching between v5 and v6 changes what’s running. If you ran v6 and then run v5 tests, re-apply the v5 overlay.
+- Switching between v5 and v6 changes what's running. If you ran v6 and then run v5 tests, re-apply the v5 overlay.
 
 ## Where do I “see” logs?
 

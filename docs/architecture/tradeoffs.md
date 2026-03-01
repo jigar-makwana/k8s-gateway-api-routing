@@ -67,4 +67,31 @@ This file captures the “why” behind choices, plus what we’ll compare in la
 
 **Implementation note (this repo)**
 - v6 filters to `gateway-demo` + `echo-api` container logs to avoid feedback loops
-  (shipping the sink’s own logs back into the sink).
+  (shipping the sink's own logs back into the sink).
+
+---
+
+## v7 — Gateway API routing (NGINX Gateway Fabric)
+**Pattern**
+- Gateway API CRDs (standard channel) replace Ingress resources
+- NGINX Gateway Fabric controller replaces `ingress-nginx`
+- Gateway resource defines the listener; HTTPRoute resources define path routing
+- URL rewriting uses the native `URLRewrite` filter (no annotations)
+
+**Pros**
+- Standardized API — behavior is conformance-tested across controllers
+- Role-oriented model — infra team owns Gateway, app team owns HTTPRoute
+- Portable — switching controllers doesn't require annotation rewrites
+- Native extensibility via typed filters and policy attachment
+- Same NGINX data plane as v4 — clean migration story
+
+**Cons**
+- Requires CRD installation (extra setup step vs built-in Ingress)
+- Newer ecosystem — some edge cases may be less documented
+- Two resources (Gateway + HTTPRoute) vs one (Ingress) — slightly more YAML
+- Controller namespace changes (`nginx-gateway` vs `ingress-nginx`)
+
+**Why it replaces v4**
+- Gateway API is the official Kubernetes successor to Ingress
+- v4 is the "before" baseline; v7 is the measurable upgrade
+- Same routing behavior (`/` → echo-api, `/nginx` → nginx-smoke) proves equivalence
