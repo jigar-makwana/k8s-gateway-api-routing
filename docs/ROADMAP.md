@@ -100,16 +100,16 @@ Deliverable:
 
 ## v7 — Routing upgrade (Gateway API)
 
-- [ ] Choose Gateway API controller for local demo
-- [ ] Implement Gateway + HTTPRoute(s)
-- [ ] Validate behavior + rollback path
-- [ ] Update diagrams: old vs new
-- [ ] Add legacy vs new routing comparison table
+- [x] Choose Gateway API controller for local demo
+- [x] Implement Gateway + HTTPRoute(s)
+- [x] Validate behavior + rollback path
+- [x] Update diagrams: old vs new
+- [x] Add legacy vs new routing comparison table
 
 Deliverable:
-- [ ] Gateway API routing works end-to-end
-- [ ] Rollback steps documented
-- [ ] Old vs new comparison written + diagram updated
+- [x] Gateway API routing works end-to-end
+- [x] Rollback steps documented
+- [x] Old vs new comparison written + diagram updated
 
 ---
 
