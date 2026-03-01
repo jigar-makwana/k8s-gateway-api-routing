@@ -1,0 +1,5 @@
+resources:
+  - gateway.yaml
+  - httproute-echo-api.yaml
+  - httproute-nginx-smoke.yaml
+
