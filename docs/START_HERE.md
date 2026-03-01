@@ -2,12 +2,13 @@
 
 This is the shortest path to run the repo locally and see real results.
 
-## What you can demo right now (v1–v6)
+## What you can demo right now (v1–v7)
 
 - **v1:** smoke test (`nginx-smoke`) — proves the cluster + basic workload works
 - **v4:** legacy routing — proves `/` (echo-api) and `/nginx` (nginx-smoke) route through `ingress-nginx`
 - **v5:** sidecar logging — Vector sidecar ships logs to a mock HEC receiver
 - **v6:** daemonset logging — Vector DaemonSet ships logs to the same mock HEC receiver (comparison)
+- **v7:** Gateway API routing — proves `/` and `/nginx` route through NGINX Gateway Fabric (modern replacement for v4)
 
 ## Prereqs
 
@@ -69,9 +70,23 @@ make v6-test
 ```
 
 > Note: v4/v5/v6 tests expect ingress to be reachable at `http://localhost:8080`.
-> That’s why `make v4-port` runs in a separate terminal.
+> That's why `make v4-port` runs in a separate terminal.
 >
-> On Windows you may see occasional port-forward “forcibly closed” messages. If curls/tests still succeed, it’s usually harmless.
+> v7 tests expect the same URL but use a different port-forward target (`make v7-port`).
+>
+> On Windows you may see occasional port-forward "forcibly closed" messages. If curls/tests still succeed, it's usually harmless.
+
+### Gateway API routing demo (v7)
+Terminal A (blocking):
+```bash
+make v7
+make v7-port
+```
+
+Terminal B:
+```bash
+make v7-test
+```
 
 ## Quick run (scripts only)
 
@@ -103,7 +118,17 @@ kubectl -n ingress-nginx port-forward svc/ingress-nginx-controller 8080:80
 
 # v6 logging (daemonset)
 .\scripts\deploy_logging_daemonset.ps1 -ClusterName "gateway-demo"
-.\scripts	est_logging_daemonset.ps1 -BaseUrl "http://localhost:8080" -Namespace "gateway-demo"
+.\scripts\test_logging_daemonset.ps1 -BaseUrl "http://localhost:8080" -Namespace "gateway-demo"
+
+# v7 routing (Gateway API) — alternative to v4
+.\scripts\gateway_nginx_install.ps1 -ClusterName gateway-demo
+.\scripts\deploy_gateway_routing.ps1 -ClusterName gateway-demo
+
+# Terminal A (blocking):
+kubectl -n nginx-gateway port-forward svc/nginx-gateway 8080:80
+
+# Terminal B:
+.\scripts\test_gateway_routing.ps1
 ```
 
 ### macOS/Linux (bash)
@@ -135,6 +160,16 @@ bash scripts/test_logging_sidecar.sh http://localhost:8080
 # v6 logging (daemonset)
 bash scripts/deploy_logging_daemonset.sh gateway-demo
 bash scripts/test_logging_daemonset.sh http://localhost:8080 gateway-demo
+
+# v7 routing (Gateway API) — alternative to v4
+bash scripts/gateway_nginx_install.sh gateway-demo
+bash scripts/deploy_gateway_routing.sh gateway-demo
+
+# Terminal A (blocking):
+kubectl -n nginx-gateway port-forward svc/nginx-gateway 8080:80
+
+# Terminal B:
+bash scripts/test_gateway_routing.sh
 ```
 
 ## Cleanup

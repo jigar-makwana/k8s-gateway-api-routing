@@ -1,17 +1,22 @@
 # Architecture
 
-## Current (v1–v6)
+## Current (v1–v7)
 
 - Local Kubernetes via **kind**
 - Namespace: `gateway-demo`
 - Workloads:
   - `nginx-smoke` (v1)
   - `echo-api` (v3)
-- Routing (v4 baseline):
+- Routing (v4 baseline — legacy):
   - `ingress-nginx` controller
   - Ingress rules:
     - `/` → echo-api
     - `/nginx` → nginx-smoke
+- Routing (v7 — modern):
+  - **NGINX Gateway Fabric** controller (Gateway API)
+  - Gateway + HTTPRoute resources:
+    - `/` → echo-api
+    - `/nginx` → nginx-smoke (URLRewrite filter)
 
 
 ## Logging (v5–v6)
@@ -33,5 +38,5 @@ To keep demos local (no cloud bill), the repo includes a **mock HEC sink**:
 - Creates a legacy baseline (Ingress) so the Gateway API upgrade is meaningful
 
 ## What changes later
-- v7 replaces Ingress with Gateway API resources (Gateway/HTTPRoute)
+- v8+ adds RBAC, Pod Security, NetworkPolicies, and more (see roadmap)
 - v5–v6 introduce log collection patterns (sidecar vs DaemonSet)
